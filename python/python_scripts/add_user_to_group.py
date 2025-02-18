@@ -7,6 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 load_dotenv()
 
 GITLAB_TOKEN = os.getenv("GITLAB_TOKEN")
+GROUP_ID = os.getenv("GROUP_ID")  
 
 print("Connecting to Google Sheets...")
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -15,7 +16,7 @@ client = gspread.authorize(creds)
 print("Connected to Google Sheets.")
 
 sheet = client.open("EmployeeData").sheet1
-data = sheet.get_all_records()  
+data = sheet.get_all_records()
 
 print("Raw data fetched:")
 print(data)
@@ -23,7 +24,6 @@ print(f"Fetched {len(data)} employee records.")
 
 # GitLab configuration
 GITLAB_URL = "https://gitlab.com"
-GROUP_ID = 97348160  
 
 gl = gitlab.Gitlab(GITLAB_URL, private_token=GITLAB_TOKEN)
 print("Connected to GitLab.")
@@ -43,7 +43,7 @@ for employee in data:
         user = users[0]  
         print(f"Found existing user: {user.username} (ID: {user.id})")
 
-        group = gl.groups.get(GROUP_ID)
+        group = gl.groups.get(int(GROUP_ID))  
 
         existing_members = group.members.list(get_all=True)
         if any(member.id == user.id for member in existing_members):
